@@ -1,0 +1,39 @@
+/* rich body rendering — reader/dive panes, hljs/mermaid/quill overrides */
+.mmd-box svg{max-width:100%;height:auto;margin:10px 0}
+pre{background:#0b0f22;border:1px solid #161b38;border-radius:10px;padding:12px;overflow-x:auto;font-size:12px}
+pre.mmd-err{border-color:#4a3a1a;opacity:0.85}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.92em}
+p code,li code,td code{background:#141a36;padding:1px 5px;border-radius:4px}
+table{border-collapse:collapse;margin:12px 0}
+th,td{border:1px solid #2a3a6a;padding:5px 10px;font-size:12px}
+th{background:#10162e;color:#9ad8ff}
+blockquote{border-left:3px solid #2a4a7a;margin:10px 0;padding:2px 14px;color:#9aa6d8}
+a{color:#7ee8fa}
+img{max-width:100%}
+h1,h2,h3,h4{color:#e6ecff;line-height:1.25}
+
+/* Quill on the dark shell */
+.ql-toolbar.ql-snow{background:#10162e;border-color:#2a3a6a;border-radius:10px 10px 0 0}
+.ql-container.ql-snow{border-color:#2a3a6a;font-family:inherit;font-size:14px}
+.ql-editor{color:#dfe7ff;min-height:180px}
+.ql-editor.ql-blank::before{color:#5d6796;font-style:normal}
+.ql-snow .ql-stroke{stroke:#9aa6d8}
+.ql-snow .ql-fill{fill:#9aa6d8}
+.ql-snow .ql-picker{color:#9aa6d8}
+.ql-snow .ql-picker-options{background:#10162e;border-color:#2a3a6a}
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options{border-color:#2a3a6a}
+.ql-snow.ql-toolbar button:hover .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#7cffc4}
+.ql-snow.ql-toolbar button.ql-active .ql-stroke{stroke:#7cffc4}
+.ql-snow.ql-toolbar button.ql-active .ql-fill{fill:#7cffc4}
+
+/* card chrome — attention pulse + toasts */
+@keyframes attnWave{0%,100%{box-shadow:0 0 0 0 rgba(126,232,250,0);filter:brightness(1)}50%{box-shadow:0 0 16px 2px rgba(126,232,250,.45);filter:brightness(1.3)}}
+.attn{animation:attnWave 2.6s ease-in-out infinite}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+.tsToast{animation:toastIn .22s ease-out;padding:7px 14px;border-radius:10px;font-size:11px;letter-spacing:.2px;
+  background:rgba(10,14,34,.95);backdrop-filter:blur(10px);border:1px solid #1f2a55;color:#dfe7ff;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);max-width:min(560px,80vw);text-align:center}
+.tsToast[data-kind="ok"]{border-color:rgba(124,255,196,.4);color:#c9ffe9}
+.tsToast[data-kind="err"]{border-color:rgba(255,122,122,.5);color:#ffc9c9}
+.tsToast[data-kind="warn"]{border-color:rgba(255,207,138,.45);color:#ffe6c4}
+.tsToast[data-kind="info"]{border-color:rgba(126,232,250,.4);color:#c9ecff}

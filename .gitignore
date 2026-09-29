@@ -1,0 +1,15 @@
+# Public source allowlist. Private planning, evidence, data and runtime config stay private.
+/*
+!/.gitignore
+!/README.md
+!/pyproject.toml
+!/.env.example
+!/kstore/
+!/client/
+!/tests/
+!/dashboard/
+!/navigator/
+**/__pycache__/
+**/*.pyc
+**/node_modules/
+**/.env
