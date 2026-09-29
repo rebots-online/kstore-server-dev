@@ -114,3 +114,7 @@ GPU_DISPLAY_ALLOWLIST = tuple(os.environ.get("KSTORE_GPU_DISPLAY_ALLOWLIST", "gn
 # Operator-owned manifest selects mandatory reminders, independent of lexical search.
 _REMINDER_MANIFEST = os.environ.get("KSTORE_REMINDER_MANIFEST", "").strip()
 REMINDER_MANIFEST = Path(_REMINDER_MANIFEST).expanduser() if _REMINDER_MANIFEST else None
+
+GPU_IDLE_UTILIZATION = _int("KSTORE_GPU_IDLE_UTILIZATION", 10)
+if not 0 <= GPU_IDLE_UTILIZATION <= 100:
+    raise ValueError("KSTORE_GPU_IDLE_UTILIZATION must be between 0 and 100")

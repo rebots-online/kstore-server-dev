@@ -14,8 +14,9 @@ class GpuTests(unittest.TestCase):
         self.patches = [patch.object(config,k,v,create=True) for k,v in values.items()]
         for p in self.patches:
             p.start();self.addCleanup(p.stop)
-        self.idle={'uuid':'gpu-test','free_mb':7000,'processes':[]}
+        self.idle={'uuid':'gpu-test','free_mb':7000,'utilization':0,'processes':[]}
         self.probe=patch.object(gpu,'probe',return_value=self.idle).start();self.addCleanup(patch.stopall)
+        self.queue=patch.object(gpu,'pending_embedding_work',return_value={'pending':0,'processing':0}).start()
         self.unload=patch.object(gpu,'unload_embedder').start()
         self.command=patch.object(gpu,'command',return_value='').start()
 
@@ -51,16 +52,16 @@ class GpuTests(unittest.TestCase):
         with patch.object(gpu,'identity',return_value=None):
             with self.assertRaises(gpu.GpuBusy):gpu.GpuLease().miners(snap)
 
-    def test_dead_owner_restarts_and_persists_cooldown(self):
+    def test_dead_owner_restarts_without_cooldown(self):
         self.write_state()
         miner=dict(self.idle,processes=[{'pid':8,'exe':'/bin/miner'}])
-        self.probe.side_effect=[self.idle,miner]
+        self.probe.side_effect=[self.idle,self.idle,self.idle,self.idle,miner,miner]
         with patch.object(gpu,'identity',return_value=(str(Path('/bin/miner').resolve()),'1')):
             gpu.GpuLease().recover()
         self.command.assert_called_once_with('sudo','-n','systemctl','start','miner.service')
         state=json.loads(Path(config.GPU_STATE_PATH).read_text())
         self.assertFalse(state['restore_mining'])
-        self.assertGreater(state['cooldown_until'],gpu.time.time())
+        self.assertNotIn('cooldown_until',state)
 
     def test_failed_restart_retains_intent(self):
         self.write_state()
@@ -81,7 +82,7 @@ class GpuTests(unittest.TestCase):
     def test_live_owner_released_lock_retries_owed_restoration(self):
         self.write_state(owner_pid=gpu.os.getpid(),owner_start=gpu.owner_identity(gpu.os.getpid()))
         miner=dict(self.idle,processes=[{'pid':8,'exe':'/bin/miner'}])
-        self.probe.side_effect=[self.idle,miner]
+        self.probe.side_effect=[self.idle,self.idle,self.idle,self.idle,miner,miner]
         with patch.object(gpu,'identity',return_value=(str(Path('/bin/miner').resolve()),'1')):
             gpu.GpuLease().recover()
         self.command.assert_called_once_with('sudo','-n','systemctl','start','miner.service')
@@ -103,10 +104,9 @@ class GpuTests(unittest.TestCase):
         self.command.assert_not_called()
         self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
 
-    def test_cooldown_defers(self):
+    def test_old_cooldown_does_not_block_embedding(self):
         self.write_state(restore_mining=False,cooldown_until=gpu.time.time()+100)
-        with self.assertRaises(gpu.GpuBusy):
-            with gpu.GpuLease():pass
+        with gpu.GpuLease():pass
         self.command.assert_not_called()
 
     def test_exception_releases_flock(self):
@@ -117,7 +117,7 @@ class GpuTests(unittest.TestCase):
     def test_miner_term_is_preceded_by_durable_intent(self):
         pid=gpu.os.getpid()
         miner=dict(self.idle,processes=[{'pid':pid,'exe':'/bin/miner'}])
-        self.probe.side_effect=[miner,self.idle,self.idle,miner]
+        self.probe.side_effect=[miner,self.idle,self.idle,self.idle,self.idle,miner,miner]
         ident=(str(Path('/bin/miner').resolve()),'1')
         def observe(*args):
             if 'kill' in args:
@@ -131,6 +131,122 @@ class GpuTests(unittest.TestCase):
             with gpu.GpuLease():pass
         self.assertTrue(any('kill' in call.args for call in self.command.call_args_list))
         self.assertTrue(any('start' in call.args for call in self.command.call_args_list))
+
+    def test_all_waiting_work_vetoes_restore_without_unloading(self):
+        for counts in ({'pending':1,'processing':0}, {'pending':0,'processing':1}):
+            with self.subTest(counts=counts):
+                self.write_state()
+                self.queue.return_value=counts
+                gpu.GpuLease().recover()
+                self.command.assert_not_called()
+                self.unload.assert_not_called()
+                self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+
+    def test_database_failure_denies_restart(self):
+        self.write_state()
+        self.queue.side_effect=RuntimeError('database unavailable')
+        self.assertEqual(gpu.mining_decision()['reason'],'queue_unavailable')
+        gpu.GpuLease().recover()
+        self.command.assert_not_called()
+        self.unload.assert_not_called()
+
+    def test_foreign_workload_and_busy_display_deny_mining(self):
+        self.write_state()
+        self.probe.return_value=dict(self.idle,processes=[{'pid':8,'exe':'other'}])
+        with patch.object(gpu,'identity',return_value=('/bin/other','1')):
+            self.assertEqual(gpu.mining_decision()['reason'],'competing_process')
+        self.probe.return_value=dict(self.idle,utilization=95)
+        self.assertFalse(gpu.mining_decision()['allowed'])
+        self.probe.return_value=dict(self.idle,utilization='N/A')
+        self.assertEqual(gpu.mining_decision()['reason'],'gpu_unavailable')
+
+    def test_operator_pause_and_missing_intent_deny_start(self):
+        self.assertEqual(gpu.mining_decision()['reason'],'no_restore_intent')
+        self.write_state()
+        self.assertEqual(gpu.mining_decision({'mining_paused':True})['reason'],'operator_paused')
+        Path(str(config.GPU_STATE_PATH)+'.cancel').touch()
+        self.assertEqual(gpu.mining_decision()['reason'],'operator_paused')
+
+    def test_gate_does_not_reacquire_restorers_flock(self):
+        self.write_state()
+        lease=gpu.GpuLease(); lease._lock()
+        try:
+            self.assertTrue(gpu.mining_decision()['allowed'])
+        finally:
+            lease._unlock()
+
+    def test_queue_arrives_before_start(self):
+        self.write_state()
+        lease=gpu.GpuLease(); lease._lock()
+        self.queue.side_effect=[{'pending':0,'processing':0},{'pending':1,'processing':0}]
+        try:
+            lease.restore()
+        finally:
+            lease._unlock()
+        self.command.assert_not_called()
+        self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+
+    def test_queue_arrives_after_start_stops_attributed_miner(self):
+        self.write_state()
+        pid=gpu.os.getpid()
+        miner=dict(self.idle,processes=[{'pid':pid,'exe':'/bin/miner'}])
+        self.queue.side_effect=[{'pending':0,'processing':0}]*2+[{'pending':1,'processing':0}]
+        self.probe.side_effect=[self.idle,self.idle,self.idle,miner,miner]
+        lease=gpu.GpuLease();lease._lock()
+        try:
+            with patch.object(gpu,'identity',return_value=(str(Path('/bin/miner').resolve()),'1')):
+                lease.restore()
+        finally:lease._unlock()
+        self.assertTrue(any('start' in c.args for c in self.command.call_args_list))
+        self.assertTrue(any('kill' in c.args for c in self.command.call_args_list))
+        self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+
+    def test_demand_recovery_stops_miner_even_beside_foreign_compute(self):
+        pid=gpu.os.getpid()
+        self.queue.return_value={'pending':1,'processing':0}
+        self.probe.return_value=dict(self.idle,processes=[
+            {'pid':pid,'exe':'/bin/miner'},{'pid':8,'exe':'/bin/other'}])
+        def ident(p):
+            return (str(Path('/bin/miner').resolve()),'1') if p==pid else ('/bin/other','2')
+        with patch.object(gpu,'identity',side_effect=ident):
+            gpu.GpuLease().recover()
+        self.command.assert_called_once_with('sudo','-n','kill','-TERM',str(pid))
+        self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+
+    def test_successive_leases_preserve_owed_restore_intent(self):
+        self.write_state()
+        self.queue.return_value={'pending':1,'processing':0}
+        for _ in range(2):
+            with gpu.GpuLease():pass
+            self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+        self.command.assert_not_called()
+
+    def test_probe_failure_denies_start_and_keeps_intent(self):
+        self.write_state()
+        self.probe.side_effect=RuntimeError('telemetry unavailable')
+        lease=gpu.GpuLease();lease._lock()
+        try:
+            lease.restore()
+        finally:lease._unlock()
+        self.command.assert_not_called()
+        self.assertTrue(json.loads(Path(config.GPU_STATE_PATH).read_text())['restore_mining'])
+
+    def test_finished_restore_does_not_authorize_another_start(self):
+        self.write_state(restore_mining=False,phase='restored')
+        self.assertEqual(gpu.mining_decision()['reason'],'no_restore_intent')
+        gpu.GpuLease().recover()
+        self.command.assert_not_called()
+
+    def test_queue_query_has_no_model_or_retry_filter(self):
+        from kstore import scheduling
+        conn=MagicMock()
+        conn.execute.return_value.fetchone.return_value=(7,2)
+        with patch.object(scheduling,'pg') as pg:
+            pg.return_value.__enter__.return_value=conn
+            self.assertEqual(scheduling.pending_embedding_work(),{'pending':7,'processing':2})
+        sql=conn.execute.call_args.args[0]
+        self.assertNotIn('next_attempt_at',sql)
+        self.assertNotIn('model',sql)
 
     def test_worker_failure_returns_claimed_jobs_to_queue(self):
         w=worker.EmbeddingWorker()
