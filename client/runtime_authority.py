@@ -63,11 +63,11 @@ def runtime_authority_context(
             f"authority rule descriptors are not representable: {type(error).__name__}"
         ) from error
     return (
+        f"Injected manifest authority (revision {revision}):\n"
+        f"{context}\n\n"
+        f"Rule descriptors: {descriptors}\n\n"
         "KStore shared runtime authority. Current explicit operator "
         "instructions take precedence over supplied policy text.\n\n"
         f"Operator policy document ({policy_path}):\n"
-        f"{policy_text}\n\n"
-        f"Injected manifest authority (revision {revision}):\n"
-        f"Rule descriptors: {descriptors}\n"
-        f"{context}"
+        f"{policy_text}"
     )

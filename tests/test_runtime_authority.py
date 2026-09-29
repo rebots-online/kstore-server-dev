@@ -47,7 +47,9 @@ class RuntimeAuthorityTests(unittest.TestCase):
         result = self.call()
         self.assertIn(self.policy_path, result)
         self.assertIn('rev-one', result)
-        self.assertIn(self.policy_text + '\n\nInjected manifest authority', result)
+        self.assertTrue(result.startswith("Injected manifest authority"))
+        self.assertTrue(result.endswith(self.policy_text))
+        self.assertLess(result.index(REMINDER_TEXT), result.index(self.policy_text))
         self.assertIn(REMINDER_TEXT, result)
         self.assertIn(self.client.inject.return_value['context'], result)
 
