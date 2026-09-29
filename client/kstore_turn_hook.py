@@ -10,6 +10,7 @@ import os
 import socket
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -241,6 +242,25 @@ def activity_catalog(client, stream, first, last):
     return catalog
 
 
+def settle_before_review(client, state, payload, runtime, receipt):
+    """Bounded wait for the runtime's Stop-time flush before the first review.
+
+    The closing assistant line and Stop bookkeeping can land in the transcript
+    after the hook starts; a first review over that moving boundary is stale by
+    construction. Two consecutive unchanged last_sequence polls mean the flush
+    has settled. Activity arriving later stays covered by review_until_stable.
+    """
+    unchanged = 0
+    for _ in range(3):
+        time.sleep(0.2)
+        latest = archive(client, state, payload, runtime)
+        unchanged = unchanged + 1 if latest['last_sequence'] == receipt['last_sequence'] else 0
+        receipt = latest
+        if unchanged == 2:
+            break
+    return receipt
+
+
 def review_until_stable(client, state, payload, runtime, receipt, first):
     for _ in range(3):
         verdict = client.review(receipt['stream_id'], first,
@@ -272,6 +292,7 @@ def main():
         if mode == 'post':
             if receipt['first_sequence'] is None:
                 raise ValueError('No captured activity to review')
+            receipt = settle_before_review(client, state, payload, runtime, receipt)
             first = receipt.get('review_from')
             if first is None:
                 first = receipt.get('turn_first', receipt['first_sequence'])
