@@ -1,0 +1,29 @@
+{
+  "status": "PASS_WITH_LIMITATIONS",
+  "scope": "review DOM/state and static contracts; not browser layout or runtime SMS/contacts",
+  "screenCount": 31,
+  "taskCount": 35,
+  "checks": [
+    "31 screens render into the DOM; every natural navigation target exists.",
+    "Incoming sample banner displays sender, number and body while preserving draft.",
+    "Work/mobile drafts remain distinct; explicitly opening Mara selects Mara’s number.",
+    "Sample contact creation and selected-field conflict resolution update review state.",
+    "Sample send changes local review state and explicitly says no SMS transmitted.",
+    "Offline blocks sample send; sample reconnect restores connected state.",
+    "35 task recipes form a complete acyclic dependency graph."
+  ],
+  "figma": {
+    "file": "https://www.figma.com/design/jgQ6af7U751btRN5FPzJ5w",
+    "screenCount": 31,
+    "editable": true,
+    "boundsChecked": true,
+    "conversationAndContactVisualInspection": "PASS"
+  },
+  "limitations": [
+    "Local Chromium is unavailable and its official download was blocked/returned invalid archive bytes; Playwright geometry and physical-keyboard checks did not run.",
+    "Figma Design visual/bounds checks do not establish HTML viewport layout.",
+    "No actual Android/Google mutation, OAuth, SMS or OS notification was executed.",
+    "Figma Make and Google Stitch generation/export remain blocked.",
+    ".87 projection and canonical kstore ingest remain pending."
+  ]
+}

@@ -1,0 +1,546 @@
+[
+  {
+    "id": "T00",
+    "title": "Complete or explicitly waive Make/Stitch exports",
+    "dependencies": [],
+    "requirements": [
+      "R11"
+    ],
+    "scope": "DESIGN.md; screens.json; Voiceish-prototype.html",
+    "recipe": "Restore authorized Figma Make/Stitch access; submit the DESIGN.md generation contract and exact screen inventory. Export every linked screen to runnable HTML. Compare routes, state fields and interactions with CONTRACTS.json. If still blocked, record the operator\u2019s explicit waiver for authored HTML plus Figma Design; do not mark the exports complete.",
+    "acceptance": "31 routes reachable; natural actions and review navigation work; exported provenance and service links recorded. A waiver is operator-authored, exact and attached to the gate.",
+    "status": "pending"
+  },
+  {
+    "id": "T01",
+    "title": "Freeze authority and runtime configuration",
+    "dependencies": [
+      "T00"
+    ],
+    "requirements": [
+      "R11"
+    ],
+    "scope": "kstore authority retrieval; approval record; provider model metadata",
+    "recipe": "Retrieve current Admin-Manual/project authority through kstore first. If unavailable, read the authorized local projection, report the gap and repair its verified ingest. Pin the product commit, architecture and checklist hashes. Verify requested glm-5.3-flash model availability and documented thinking-disable option using provider metadata. Obtain explicit operator sign-off and task token; issue no worker until every gate passes.",
+    "acceptance": "Approval binds exact files/product commit; provider capability proves requested model and disabled thinking. Missing model/configuration/sign-off is BLOCKED; no substituted model or guessed disable parameter.",
+    "status": "pending"
+  },
+  {
+    "id": "T02",
+    "title": "Capture baseline and reproduce layout",
+    "dependencies": [
+      "T01"
+    ],
+    "requirements": [
+      "R01",
+      "R10"
+    ],
+    "scope": "source/web/dist; source/extension; source/package.json",
+    "recipe": "Create an isolated product checkout at the approved commit. Read applicable AGENTS.md. Run existing checks without changing them. Reproduce recipient clipping at short popup height and phone keyboard-open geometry; capture viewport metrics and synthetic screenshots. Record working pairing/SIM/send behavior as regression baseline.",
+    "acceptance": "Baseline test evidence and a reproducible geometry case exist. npm test from source and npm test from source/web pass or pre-existing failures are documented before changes.",
+    "status": "pending"
+  },
+  {
+    "id": "T03",
+    "title": "Introduce typed recipient and per-thread draft model",
+    "dependencies": [
+      "T02"
+    ],
+    "requirements": [
+      "R01",
+      "R07",
+      "R10"
+    ],
+    "scope": "source/web/dist/core.js; source/extension/core.js; proposed shared domain module",
+    "recipe": "Define ThreadRef and immutable RecipientRef including device/SIM/address identity. Store drafts by thread key with recipient snapshot. Resolve chosen numbers explicitly; save and restore when switching. Share one contract across web and extension without implicit reassignment on contact-name changes.",
+    "acceptance": "A draft written for number A never appears under B; same contact with two numbers has separate drafts/histories; stale changed-number draft requests review. Unit fixtures cover SIM/device separation.",
+    "status": "pending"
+  },
+  {
+    "id": "T04",
+    "title": "Repair web composer viewport",
+    "dependencies": [
+      "T03"
+    ],
+    "requirements": [
+      "R01"
+    ],
+    "scope": "source/web/dist/index.html; style.css; app.js",
+    "recipe": "Replace oversized workspace minimum height with header/history/composer grid and bounded inner scrolling. Repeat resolved name and full number in composer; associate accessible labels with input and Send. Handle visual viewport changes, safe-area and IME. Keep messages independently scrollable.",
+    "acceptance": "320/390/768/1440 widths, 420px popup height, 200% text zoom and reduced viewport height show full destination beside editable input. No horizontal overflow or overlap; long names/numbers wrap.",
+    "status": "pending"
+  },
+  {
+    "id": "T05",
+    "title": "Repair extension popup and full-tab composer",
+    "dependencies": [
+      "T03"
+    ],
+    "requirements": [
+      "R01"
+    ],
+    "scope": "source/extension/popup.html; popup.css; popup.js",
+    "recipe": "Apply the same recipient/composer invariant in popup and full-tab mode. Preserve selection and draft when popup is reopened. Keep transient notifications outside input geometry. Prevent Enter during IME composition from submitting.",
+    "acceptance": "Popup focus, long input, reopening and number switching keep visible correct recipient. Full-tab and compact popup use the same domain selection.",
+    "status": "pending"
+  },
+  {
+    "id": "T06",
+    "title": "Version new capabilities without breaking v1",
+    "dependencies": [
+      "T02"
+    ],
+    "requirements": [
+      "R02",
+      "R05",
+      "R06",
+      "R10"
+    ],
+    "scope": "source/android/app/src/main/java/com/voiceish/sim/Protocol.java; browser RPC adapters",
+    "recipe": "Define explicit v2 capabilities and typed error envelopes in the protocol specification. Negotiate each added feature; keep existing v1 status/messages/send unchanged. Enforce message size, SIM and pairing-generation validation at dispatch.",
+    "acceptance": "Old phone/new browser retains v1 SMS and clearly disables contacts/events. Unknown actions, invalid schemas and stale SIM/generation fail without side effects. Java/JS fixtures agree.",
+    "status": "pending"
+  },
+  {
+    "id": "T07",
+    "title": "Add paged inbound history",
+    "dependencies": [
+      "T06"
+    ],
+    "requirements": [
+      "R04",
+      "R10"
+    ],
+    "scope": "SmsStore.java; Protocol.java; history cursor specification",
+    "recipe": "Implement keyset paging for pinned-SIM inbound provider records with scan-start upper bound, stable date/id ordering and bounded page size. Return coverage/excluded-unknown-subscription counts and resumable opaque cursor. Preserve capped v1 snapshot.",
+    "acceptance": "History exceeding 300 messages is scanned without dropped/duplicated pages. Concurrent new SMS does not destabilize the bounded scan. Wrong-SIM/missing-subscription records never cross identities.",
+    "status": "pending"
+  },
+  {
+    "id": "T08",
+    "title": "Persist inbound event journal and enrollment baseline",
+    "dependencies": [
+      "T07"
+    ],
+    "requirements": [
+      "R02"
+    ],
+    "scope": "SmsStore.java; BridgeService.java; new inbound event repository",
+    "recipe": "Add transactional schema migration for event IDs, epoch and cursor. Observe provider changes plus bounded fallback rescan while bridge runs. Seed baseline on new enrollment; derive one inbound event per completed provider message. Implement retention and explicit stale-cursor gap.",
+    "acceptance": "Initial history produces no notification flood; multipart/provider-change bursts deduplicate; restart resumes; journal trimming returns a typed gap and reconciliation coverage, not silence.",
+    "status": "pending"
+  },
+  {
+    "id": "T09",
+    "title": "Implement authenticated local event socket",
+    "dependencies": [
+      "T06",
+      "T08"
+    ],
+    "requirements": [
+      "R02",
+      "R10"
+    ],
+    "scope": "LocalServer.java; Crypto.java; event stream codec",
+    "recipe": "Add v2 WebSocket upgrade on existing host/port and local-peer boundary. Require encrypted authenticated subscribe before data; bind epoch/session/SIM, direction-separated AAD and nonce policy. Add bounded clients, heartbeat, frame-size/time limits. Use reviewed primitives and pinned dependencies where necessary.",
+    "acceptance": "Unauthenticated/malformed/replayed/oversized frames receive no payload; only current paired local client gets events. Encryption vectors and actual socket integration pass. Listener/subnet scope is unchanged.",
+    "status": "pending"
+  },
+  {
+    "id": "T10",
+    "title": "Run inbound client in MV3 background",
+    "dependencies": [
+      "T09"
+    ],
+    "requirements": [
+      "R02"
+    ],
+    "scope": "source/extension/background.js; manifest.json; new event-client.js",
+    "recipe": "Own event subscription in the service worker. Persist cursor/pending dedup metadata, send encrypted heartbeat within 20 seconds, reconnect using alarms with bounded backoff. Restore registrations on startup; close stale pairing/SIM sessions. Add documented alarms permission.",
+    "acceptance": "Popup/page closed still receives sample phone events. Worker termination/restart, offline/reconnect and stale epoch recover without normal duplicate alerts. No setInterval-only lifecycle assumption.",
+    "status": "pending"
+  },
+  {
+    "id": "T11",
+    "title": "Deliver and route Chrome notification previews",
+    "dependencies": [
+      "T10",
+      "T03"
+    ],
+    "requirements": [
+      "R02"
+    ],
+    "scope": "background.js; manifest.json; NotificationRouter; notification setup UI",
+    "recipe": "Add notifications permission, sender/number/body preview, preview-hide option and test notification. Use deterministic event notification IDs and record failures honestly. Click focuses a controlled extension tab at exact ThreadRef; show fallback unread/banner when blocked.",
+    "acceptance": "Closed popup incoming SMS creates expected preview. Clicking opens the correct number without sending. Permission denial, DND user check and click-after-restart are documented; dismissed preview never changes draft.",
+    "status": "pending"
+  },
+  {
+    "id": "T12",
+    "title": "Add open-page incoming banner and capability guidance",
+    "dependencies": [
+      "T11",
+      "T04"
+    ],
+    "requirements": [
+      "R02"
+    ],
+    "scope": "source/web/dist/app.js; site-bridge.js; direct-browser engine",
+    "recipe": "Display new incoming event banner in its own layout row; retain active draft and recipient. Deduplicate UI/OS presentation through the notification policy. Explain that closed-page background alerts require extension; expose actual last-seen/offline status.",
+    "acceptance": "Receiving for A while typing to B preserves B and its draft; Open message explicitly moves to A. Direct page does not claim closed-page background delivery.",
+    "status": "pending"
+  },
+  {
+    "id": "T13",
+    "title": "Define contact schema and safe migration",
+    "dependencies": [
+      "T06"
+    ],
+    "requirements": [
+      "R03",
+      "R05",
+      "R06",
+      "R08"
+    ],
+    "scope": "new Android ContactStore; SQLite schema; CONTRACTS.json",
+    "recipe": "Create contacts/addresses/source mappings/changes/outbox/conflicts tables with constraints and transaction-backed migrations. Separate address identity from display names. Protect app-private data; preserve pairing/SMS receipts/drafts through upgrade.",
+    "acceptance": "Migration from existing 0.1.4 DB succeeds and rollback retains data. Multiple numbers and shared numbers are representable; source identity is account-qualified.",
+    "status": "pending"
+  },
+  {
+    "id": "T14",
+    "title": "Implement canonical number parsing",
+    "dependencies": [
+      "T13"
+    ],
+    "requirements": [
+      "R07"
+    ],
+    "scope": "Android PhoneAddress normalizer; Gradle dependency configuration; JS parity fixtures",
+    "recipe": "Pin a reviewed libphonenumber Java dependency and metadata version. Preserve raw values; require confirmed region for national parsing; distinguish short codes, extensions and alphanumeric/non-dialable senders. Supply canonical keys to browsers. Add dependency-aware build path rather than pretending SDK-only builder resolves jars.",
+    "acceptance": "Formatting variants link for valid regional numbers; country ambiguity/service-code/extension fixtures remain separate. No last-seven-digit matching; parser parity/build verification passes.",
+    "status": "pending"
+  },
+  {
+    "id": "T15",
+    "title": "Read Android contacts and observe changes",
+    "dependencies": [
+      "T13",
+      "T14"
+    ],
+    "requirements": [
+      "R05"
+    ],
+    "scope": "new AndroidContactsAdapter; MainActivity.java; AndroidManifest.xml",
+    "recipe": "Request READ_CONTACTS only from import/lookup enrollment. Read selected accounts with aggregate lookup and raw-contact/source IDs, all numbers and labels. Record writable capabilities. Observe changes and page/reconcile snapshots.",
+    "acceptance": "Import, Android-side rename/number change, aggregation changes, read-only account and denial produce correct derived views; texting still works without contacts permission.",
+    "status": "pending"
+  },
+  {
+    "id": "T16",
+    "title": "Expose contact read API and search",
+    "dependencies": [
+      "T15"
+    ],
+    "requirements": [
+      "R03",
+      "R07"
+    ],
+    "scope": "Protocol.java; ContactRepository RPC; web/extension contact index",
+    "recipe": "Implement versioned contact list/get/search with paging, source capabilities and canonical-address lookup. Build derived client search across name and all number forms. Invalidate on contact events while preserving selected actual number.",
+    "acceptance": "Search finds punctuation variants and alternate numbers. Shared-number results remain candidates; message thread identity never changes with contact name.",
+    "status": "pending"
+  },
+  {
+    "id": "T17",
+    "title": "Build address-book and number-picker screens",
+    "dependencies": [
+      "T16",
+      "T04",
+      "T05"
+    ],
+    "requirements": [
+      "R03",
+      "R07"
+    ],
+    "scope": "web/extension contacts views; screens contacts/detail/number-picker",
+    "recipe": "Adapt reviewed HTML and Figma layouts into existing product views. Add address-book navigation, source badges, details and explicit per-number Text action. Unknown thread offers Add and Link. Reuse shared RecipientController.",
+    "acceptance": "One contact with two numbers requires selection, shows chosen number by input and restores separate draft. All prototype routes have corresponding reachable production views.",
+    "status": "pending"
+  },
+  {
+    "id": "T18",
+    "title": "Preview and create local received contacts",
+    "dependencies": [
+      "T17"
+    ],
+    "requirements": [
+      "R03"
+    ],
+    "scope": "ContactStore write API; contact-add/contact-link views",
+    "recipe": "Create revision-aware local contact apply/preview with operation ID. Add unknown sender as new identity or operator-selected existing contact. Preview destinations and retain original address. Reject duplicate/ambiguous automatic association.",
+    "acceptance": "Retry same operation is idempotent; blank name/invalid address errors inline. Linking preserves SMS history and all existing source identities.",
+    "status": "pending"
+  },
+  {
+    "id": "T19",
+    "title": "Review all received numbers",
+    "dependencies": [
+      "T07",
+      "T18"
+    ],
+    "requirements": [
+      "R04"
+    ],
+    "scope": "received-number scan service; bulk-review UI",
+    "recipe": "Scan paged inbound history, canonicalize and collect unique addresses, classify existing/unknown/service/ambiguous identities, track scan coverage and progress. Allow selection/exclusion and resume. Apply selected local contacts under batch operation ID.",
+    "acceptance": "More than 300 records, duplicate formatting and short codes yield accurate unique candidates. Cancel/resume and repeated apply create no duplicates; original SMS records unchanged.",
+    "status": "pending"
+  },
+  {
+    "id": "T20",
+    "title": "Write Android source records with verification",
+    "dependencies": [
+      "T18",
+      "T15"
+    ],
+    "requirements": [
+      "R05",
+      "R08"
+    ],
+    "scope": "AndroidContactsAdapter mutation path; runtime WRITE_CONTACTS flow",
+    "recipe": "Request WRITE_CONTACTS at chosen write enrollment. Apply field-aware patches to writable raw contact or create under explicit target account. Preserve unknown fields; validate source revision and re-read provider result. Record ambiguous create outcome for reconciliation.",
+    "acceptance": "Permission denial/read-only/error leaves pending state. Create/update re-read matches patch, retries do not duplicate contact, and source account never substitutes.",
+    "status": "pending"
+  },
+  {
+    "id": "T21",
+    "title": "Enroll native Google authorization",
+    "dependencies": [
+      "T13"
+    ],
+    "requirements": [
+      "R06"
+    ],
+    "scope": "new GoogleAuthAdapter; Android Gradle/config; google-import view",
+    "recipe": "Verify current official native authorization SDK contract and supported token renewal. Register intended OAuth client/package/signing identity through authorized configuration. Add selected-account read-only enrollment and incremental write consent. Return status/account capabilities to browser; keep tokens on phone. Use Gradle for dependency-aware full variant.",
+    "acceptance": "Real account authorization succeeds; missing Play Services/client config, denied consent, revoked access and account mismatch are typed failures. No tokens/client secrets in browser, logs or source. Renewal evidence exists.",
+    "status": "pending"
+  },
+  {
+    "id": "T22",
+    "title": "Import all Google contact pages",
+    "dependencies": [
+      "T21",
+      "T14"
+    ],
+    "requirements": [
+      "R06",
+      "R07"
+    ],
+    "scope": "GoogleContactsAdapter read path; import-review view",
+    "recipe": "Fetch People API connections pages using consistent masks and selected account. Persist complete snapshot and next sync token only at end. Link exact validated numbers, retaining Google resource/source etag and unresolved candidates.",
+    "acceptance": "Multi-page import preserves all phone numbers/labels and source identity. Mid-page failure retains resumable state without publishing incomplete sync token. Google-only/Android-linked candidates correctly distinguished.",
+    "status": "pending"
+  },
+  {
+    "id": "T23",
+    "title": "Implement Google source mutations",
+    "dependencies": [
+      "T22",
+      "T18"
+    ],
+    "requirements": [
+      "R06",
+      "R08"
+    ],
+    "scope": "GoogleContactsAdapter write path; SyncOperation store",
+    "recipe": "Serialize mutations per account; use source etags and minimum field masks. Persist operation/result before declaring completion. Handle create uncertainty by reconciliation; updates/deletes require approved source target. Do not overwrite unrelated People fields.",
+    "acceptance": "Create/update/reviewed delete readback evidence passes; stale etag produces conflict; ambiguous create never blindly duplicates; revoked write consent keeps queue.",
+    "status": "pending"
+  },
+  {
+    "id": "T24",
+    "title": "Establish source mapping and one write owner",
+    "dependencies": [
+      "T20",
+      "T22",
+      "T23"
+    ],
+    "requirements": [
+      "R08"
+    ],
+    "scope": "SourceLink ownership service; linked-source UI",
+    "recipe": "Map Google-backed Android raw contacts to Google resource identity when evidence supports it. Pick one write owner per logical source record. Use native Google sync ownership for mapped Android records; API ownership for Google-only records; hold uncertain pairs read-only pending review.",
+    "acceptance": "A local change to a mapped Google/Android identity produces one source mutation, not two. Missing mapping does not guess by name; source ownership visible in review.",
+    "status": "pending"
+  },
+  {
+    "id": "T25",
+    "title": "Merge bidirectional changes and suppress echoes",
+    "dependencies": [
+      "T24"
+    ],
+    "requirements": [
+      "R08"
+    ],
+    "scope": "ContactSyncEngine; ContactChange/SyncOperation journal",
+    "recipe": "Implement three-way field merge using last-synced base, origin and version. Apply remote-only edits to merged view, enqueue authorized propagation, merge disjoint edits and create same-field conflicts. Detect echoed operations by mapping/version/hash. Persist sync policy per source/account.",
+    "acceptance": "Android\u2192Voiceish\u2192Google and Google\u2192Voiceish\u2192Android paths work under write-owner policy. Repeated cycles converge without duplicate contacts or infinite writes; conflict preserves both source values.",
+    "status": "pending"
+  },
+  {
+    "id": "T26",
+    "title": "Render conflict and deletion decisions",
+    "dependencies": [
+      "T25",
+      "T17"
+    ],
+    "requirements": [
+      "R08"
+    ],
+    "scope": "sync-conflict/sync-review views; resolution API",
+    "recipe": "Show base/local/remote field values and provider destinations. Require explicit preferred value or postpone. Separate Unlink, Keep elsewhere and Delete everywhere; validate conflict base revision before applying resolution. Include multi-source deletion preview.",
+    "acceptance": "Stale resolution rejected; postponed conflict keeps data; unlink changes no provider record/SMS. No automatic cascading delete from a tombstone.",
+    "status": "pending"
+  },
+  {
+    "id": "T27",
+    "title": "Recover sync after offline and expired tokens",
+    "dependencies": [
+      "T25",
+      "T21"
+    ],
+    "requirements": [
+      "R06",
+      "R08"
+    ],
+    "scope": "sync recovery scheduler; Google token/sync cursor state; offline UI",
+    "recipe": "Run durable outbox with bounded backoff and reconnect. On Google sync-token expiry, perform full paged reconciliation while preserving unsent edits and tombstones. On authorization expiry, stop writes and ask same-account reconnect. Respect delayed read-after-write visibility.",
+    "acceptance": "Offline edits survive process restart; seven-day token-expiry fixture triggers rescan; no account fallback, edit loss, false Synced badge or duplicate uncertain create.",
+    "status": "pending"
+  },
+  {
+    "id": "T28",
+    "title": "Implement secure ephemeral QR pairing",
+    "dependencies": [
+      "T06"
+    ],
+    "requirements": [
+      "R09",
+      "R10"
+    ],
+    "scope": "Crypto.java; LocalServer.java; MainActivity.java; PairingAdapter",
+    "recipe": "Specify reviewed ephemeral key exchange, challenge/public key QR fields, expiry, endpoint/session binding and short comparison phrase. Use fresh approved primitives and Java/JS vectors. Keep permanent shared key off QR. Store confirmed pairing only after authenticated verification and correct SIM check.",
+    "acceptance": "Expired/replayed/mismatched/wrong-phone QR fails. Both screens show phrase/SIM; pairing is not marked ready on scan alone. Existing v1 compatibility remains explicit.",
+    "status": "pending"
+  },
+  {
+    "id": "T29",
+    "title": "Build scanner and permission-led setup",
+    "dependencies": [
+      "T28",
+      "T11"
+    ],
+    "requirements": [
+      "R09"
+    ],
+    "scope": "pair scan/fallback/confirm/check screens; phone setup flow",
+    "recipe": "Request desktop camera on scan action; parse validated QR using a pinned decoder or supported browser capability with fallback. Show correct phone/SIM/phrase and finish reachability check. Offer advanced file/code fallback when camera unavailable. Keep SMS/contact permission requests just in time.",
+    "acceptance": "Phone\u2192computer scan avoids long-string transfer on equipped desktop; no-camera/denied/unreachable/wrong-SIM states actionable. No relay/subnet changes or false completion.",
+    "status": "pending"
+  },
+  {
+    "id": "T30",
+    "title": "Align native contact and status screens",
+    "dependencies": [
+      "T26",
+      "T29"
+    ],
+    "requirements": [
+      "R01",
+      "R05",
+      "R06",
+      "R08"
+    ],
+    "scope": "Android MainActivity and new contact/setup views",
+    "recipe": "Expose contact enrollment, account/source choice, sync queue/conflicts and bridge/notification status on phone using the same contracts. Provide Android contact creation/edit completion and native authorization return states. Preserve keyboard insets and explicit destination when composing is available.",
+    "acceptance": "Phone UI resolves imports/conflicts and displays true provider/permission states. Z Fold layout has no obscured controls or silent source substitution.",
+    "status": "pending"
+  },
+  {
+    "id": "T31",
+    "title": "Run integrated synthetic regression suite",
+    "dependencies": [
+      "T12",
+      "T19",
+      "T27",
+      "T30"
+    ],
+    "requirements": [
+      "R01",
+      "R02",
+      "R03",
+      "R04",
+      "R05",
+      "R06",
+      "R07",
+      "R08",
+      "R09",
+      "R10"
+    ],
+    "scope": "source test suites; synthetic phone/provider adapters",
+    "recipe": "Run existing root/web/extension checks, new domain/provider/socket tests and responsive interaction tests. Exercise popup-closed MV3 termination, encrypted event replay, stale SIM, unknown send, bulk history and two-way conflict/expiry paths. Record test counts/commands rather than inferred success.",
+    "acceptance": "Existing and new relevant tests pass; event auth/subnet/pairing/send safeguards intact. No real SMS or contact write during automated tests.",
+    "status": "pending"
+  },
+  {
+    "id": "T32",
+    "title": "Qualify actual phone and Chrome runtime",
+    "dependencies": [
+      "T31"
+    ],
+    "requirements": [
+      "R01",
+      "R02",
+      "R05",
+      "R06",
+      "R08",
+      "R09",
+      "R10"
+    ],
+    "scope": "operator-approved test number/account; Z Fold5; Chrome on target OS",
+    "recipe": "Arrange an explicitly authorized test number and isolated contacts; never use arbitrary contacts. Verify incoming preview with popup/site closed and phone asleep, route click, keyboard recipient, native Google/Android mutations/conflicts, SIM change and QR setup. Measure latency and idle/battery; record DND/browser-exit boundaries.",
+    "acceptance": "Physical runtime evidence covers full requirements and permission recovery. Synthetic success alone cannot close this task. All actual SMS/account writes are specifically authorized.",
+    "status": "pending"
+  },
+  {
+    "id": "T33",
+    "title": "Generate one coherent release and reproducible builds",
+    "dependencies": [
+      "T32"
+    ],
+    "requirements": [
+      "R10",
+      "R11"
+    ],
+    "scope": "canonical release manifest; build/export/package scripts; source/docs/BUILD.md",
+    "recipe": "Select operator-approved next version mapping; generate all platform versions and documentation from one manifest. Run dependency-aware signed Android build, embed exact payload in setup app, package extension, regenerate standalone HTML and complete-source bundle including build instructions and checksums. Never overwrite old immutable release filenames.",
+    "acceptance": "APK, extension ZIP and complete sources ZIP agree with manifest; signatures/payload hashes/extension CSP/external assets checked. Rebuild instructions produce equivalent source-derived outputs.",
+    "status": "pending"
+  },
+  {
+    "id": "T34",
+    "title": "Record verified kstore delivery and release report",
+    "dependencies": [
+      "T33"
+    ],
+    "requirements": [
+      "R11"
+    ],
+    "scope": "verified kstore client; development repo projection; release evidence",
+    "recipe": "Write updated architecture/checklist/results into canonical kstore with exact PostgreSQL readback and indexing status. Materialize authorized projections on .87, verify byte hashes and commit/push scoped files. Record links and actual revision/commit identifiers; report any unavailable destination as pending. Publish only under separate release authorization.",
+    "acceptance": "Exact literal hashes, remote files and GitHub commit receipts exist. No HTTP response alone counted as ingest verification; no deployment inferred from pushed source.",
+    "status": "pending"
+  }
+]

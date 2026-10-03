@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "voiceish.review.v1",
+  "status": "proposed-not-implemented",
+  "runtimeAuthority": "phone-local-domain-store",
+  "planningAuthority": "kstore-literal-document-revision",
+  "state": {
+    "route": "ScreenId",
+    "selectedThreadId": "deviceId:subscriptionId:addressId",
+    "recipient": {"contactId": "UUID|null", "displayName": "string", "rawNumber": "string", "canonicalNumber": "string|null", "region": "ISO3166-1|null", "parseStatus": "valid|ambiguous|service-code|non-dialable", "canSendSms": "boolean"},
+    "device": {"id": "string", "label": "string", "online": "boolean", "subscriptionId": "integer", "capabilities": "string[]"},
+    "pairing": {"status": "unpaired|scanning|confirming|verifying|paired|failed", "generation": "integer", "expiresAt": "ISO8601|null"},
+    "permissions": {"sms": "granted|denied|not-requested", "contacts": "granted|denied|not-requested", "notifications": "granted|denied|not-requested"},
+    "drafts": "Record<ThreadId, {body, recipientRef, baseContactRevision, attempt?}>",
+    "notification": {"status": "idle|enabled|blocked|test-pending|error", "previewEnabled": "boolean", "event": "IncomingEvent|null"},
+    "contacts": "Contact[]",
+    "sync": {"android": "disconnected|import-once|read-only|two-way", "google": "disconnected|import-once|read-only|two-way", "pending": "SyncOperation[]", "conflicts": "SyncConflict[]", "lastCompletedAt": "ISO8601|null"}
+  },
+  "adapters": {
+    "PairingAdapter": ["beginScan()", "importLegacyPairing(input)", "confirmSession(sessionId,comparison)", "verifyConnection()", "revoke()"],
+    "SmsAdapter": ["getStatus()", "listThreads()", "pageMessages(threadId,cursor)", "pageInboundHistory(cursor,upperBound)", "send({sendId,threadId,recipientRef,body,subscriptionId})", "getReceipt(sendId)"],
+    "EventAdapter": ["subscribe({epoch,cursor,onEvent})", "pageEvents({epoch,cursor})", "getCoverage()"],
+    "NotificationAdapter": ["requestPermission()", "getStatus()", "testPreview()", "show(event)", "openThread(threadId)"],
+    "ContactRepository": ["search(query)", "get(id)", "previewPatch(patch,destinations)", "applyPatch(operationId,baseRevision,patch,destinations)", "linkNumber(operationId,contactId,addressId)", "previewReceivedNumbers(scanId)", "applyReceivedNumbers(operationId,selection)"],
+    "AndroidContactsAdapter": ["requestReadAccess()", "requestWriteAccess()", "listAccounts()", "pageContacts(account,cursor)", "applyVersionedPatch(operation)", "observeChanges()"],
+    "GoogleContactsAdapter": ["beginNativeAuthorization(account,mode)", "getAuthorizationStatus(operationId)", "pageConnections(account,cursor,syncToken)", "applyVersionedPatch(operation)", "disconnect(account)"],
+    "ContactSyncEngine": ["setPolicy(sourceAccount,mode)", "previewChanges()", "run()", "getStatus()", "resolveConflict(conflictId,choice,baseRevision)", "reviewDeletion(sourceRecordId,choice)"]
+  },
+  "events": {
+    "IncomingEvent": ["eventId", "epoch", "sequence", "deviceId", "subscriptionId", "threadId", "messageId", "recipientAddress", "body", "receivedAt"],
+    "ContactChanged": ["contactId", "revision", "origin", "changedFields"],
+    "SyncConflictCreated": ["conflictId", "contactId", "field", "base", "local", "remote"],
+    "UiStateChanged": "prototype CustomEvent voiceish:state; not a production transport"
+  },
+  "errors": ["PHONE_UNREACHABLE", "SIM_CHANGED", "PAIRING_EXPIRED", "PAIRING_MISMATCH", "CAPABILITY_UNAVAILABLE", "CAMERA_DENIED", "NOTIFICATION_BLOCKED", "CONTACT_PERMISSION_DENIED", "CONTACT_READ_ONLY", "NUMBER_AMBIGUOUS", "NUMBER_NON_DIALABLE", "SOURCE_ACCOUNT_MISMATCH", "REVISION_CONFLICT", "GOOGLE_AUTH_EXPIRED", "GOOGLE_SYNC_TOKEN_EXPIRED", "EVENT_CURSOR_GAP", "PROVIDER_CREATE_UNCERTAIN", "SEND_UNKNOWN"],
+  "prototype": {
+    "entry": "Voiceish-prototype.html#welcome",
+    "api": "window.voiceishPrototype",
+    "screens": "screens.json",
+    "safeDefault": "all effects simulated; no real adapter invocation",
+    "hooks": ["getState()", "navigate(screenId)", "dispatch(actionId)", "reset()"],
+    "dataBindingExample": "[data-bind=recipient.rawNumber]",
+    "limitations": "Mocks describe UI state and navigation. Production adapter interfaces require approval, implementation, version negotiation and real-device validation."
+  }
+}

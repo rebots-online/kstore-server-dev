@@ -1,0 +1,663 @@
+[
+  {
+    "id": "welcome",
+    "title": "Text from your own SIM",
+    "subtitle": "Connect your Android phone, check the recipient, and keep your conversations in view.",
+    "rows": [
+      "Use your usual messaging app",
+      "Your current local connection stays in place"
+    ],
+    "actions": [
+      [
+        "Connect my phone",
+        "phone-permissions"
+      ],
+      [
+        "Explore sample messages",
+        "inbox"
+      ]
+    ]
+  },
+  {
+    "id": "phone-permissions",
+    "title": "Prepare your phone",
+    "subtitle": "Grant each permission when its feature needs it.",
+    "rows": [
+      "SMS access · read and send",
+      "Phone access · confirm the SMS SIM",
+      "Notifications · show bridge status",
+      "Contacts · optional; ask when importing"
+    ],
+    "actions": [
+      [
+        "Phone is ready",
+        "pair-scan"
+      ],
+      [
+        "Permission help",
+        "permission-denied"
+      ]
+    ]
+  },
+  {
+    "id": "permission-denied",
+    "title": "SMS access is blocked",
+    "subtitle": "Open Android app settings and follow the permission guidance shown for this installation. Then return and recheck.",
+    "rows": [
+      "No SMS has been sent",
+      "Contacts can stay disconnected"
+    ],
+    "actions": [
+      [
+        "Recheck permissions",
+        "phone-permissions"
+      ],
+      [
+        "Continue sample tour",
+        "inbox"
+      ]
+    ]
+  },
+  {
+    "id": "pair-scan",
+    "title": "Scan your phone’s QR",
+    "subtitle": "In Voiceish on your phone, tap Pair computer. Hold its QR in front of this computer’s camera. No long pairing string to copy.",
+    "rows": [
+      "Camera preview · prototype placeholder",
+      "Pairing code is temporary and private",
+      "Current local-network reachability is still required"
+    ],
+    "actions": [
+      [
+        "Simulate successful scan",
+        "pair-confirm"
+      ],
+      [
+        "No camera?",
+        "pair-manual"
+      ]
+    ]
+  },
+  {
+    "id": "pair-manual",
+    "title": "Connect without a camera",
+    "subtitle": "Advanced fallback for an existing pairing file or code. This is not the default setup path.",
+    "rows": [
+      "Choose pairing file · simulated",
+      "Paste code · simulated",
+      "Check the phone’s local address"
+    ],
+    "actions": [
+      [
+        "Continue fallback",
+        "pair-confirm"
+      ],
+      [
+        "Back to scan",
+        "pair-scan"
+      ]
+    ]
+  },
+  {
+    "id": "pair-confirm",
+    "title": "Confirm this phone",
+    "subtitle": "Sample Android phone · Primary SMS SIM. Compare the short confirmation phrase on both screens.",
+    "rows": [
+      "Sample phrase · willow / copper / river",
+      "Matching SIM · Primary SMS SIM",
+      "Encrypted handshake · pending confirmation"
+    ],
+    "actions": [
+      [
+        "Matches — connect",
+        "connection-check"
+      ],
+      [
+        "Does not match",
+        "pair-scan"
+      ]
+    ]
+  },
+  {
+    "id": "connection-check",
+    "title": "Check the connection",
+    "subtitle": "Pairing is complete only after the phone answers and its SMS SIM is confirmed.",
+    "rows": [
+      "Phone reachable · sample pass",
+      "SMS read and send · sample pass",
+      "Correct SIM · sample pass"
+    ],
+    "actions": [
+      [
+        "Continue to notifications",
+        "notification-setup"
+      ],
+      [
+        "Simulate unreachable phone",
+        "offline"
+      ]
+    ]
+  },
+  {
+    "id": "notification-setup",
+    "title": "See incoming texts",
+    "subtitle": "Preview the sender, full number and message. Clicking a notification opens that exact conversation.",
+    "rows": [
+      "Message previews · enabled",
+      "Browser notifications · needs permission",
+      "Test notification · available"
+    ],
+    "actions": [
+      [
+        "Enable in prototype",
+        "notification-test"
+      ],
+      [
+        "Simulate blocked notifications",
+        "notification-blocked"
+      ],
+      [
+        "Set up later",
+        "inbox"
+      ]
+    ]
+  },
+  {
+    "id": "notification-test",
+    "title": "Test your notification",
+    "subtitle": "A sample preview should appear. A real test must also be checked with the messaging window closed.",
+    "rows": [
+      "Mara Bell · +1 416 555 0142",
+      "I’m at the east entrance.",
+      "OS alerts can be suppressed by Do Not Disturb"
+    ],
+    "actions": [
+      [
+        "Show sample preview",
+        "$notify"
+      ],
+      [
+        "Continue to inbox",
+        "inbox"
+      ]
+    ]
+  },
+  {
+    "id": "notification-blocked",
+    "title": "Notifications are blocked",
+    "subtitle": "Keep an unread badge and in-app banner. Check browser and operating-system notification settings.",
+    "rows": [
+      "Browser permission · denied",
+      "No visible OS popup is guaranteed in this state"
+    ],
+    "actions": [
+      [
+        "Retry sample test",
+        "notification-test"
+      ],
+      [
+        "Continue with in-app alerts",
+        "inbox"
+      ]
+    ]
+  },
+  {
+    "id": "inbox",
+    "title": "Messages",
+    "subtitle": "Sample data · no SMS is sent",
+    "rows": [
+      "Mara Bell · +1 416 555 0142 · I’m at the east entrance.",
+      "Unknown sender · +1 613 555 0178 · Is tomorrow still good?",
+      "Ellis Ward · +44 20 7946 0958 · Please use my work number."
+    ],
+    "actions": [
+      [
+        "Open Mara",
+        "conversation"
+      ],
+      [
+        "Open unknown sender",
+        "unknown"
+      ],
+      [
+        "New message",
+        "compose"
+      ]
+    ]
+  },
+  {
+    "id": "conversation",
+    "title": "Mara Bell",
+    "subtitle": "+1 416 555 0142 · Primary SMS SIM",
+    "rows": [
+      "Yesterday · Are we meeting by the station?",
+      "Incoming · I’m at the east entrance.",
+      "Outgoing · On my way. · Accepted by carrier"
+    ],
+    "actions": [
+      [
+        "Contact details",
+        "contact-detail"
+      ],
+      [
+        "Simulate incoming text",
+        "$notify"
+      ],
+      [
+        "Simulate uncertain send",
+        "send-unknown"
+      ]
+    ]
+  },
+  {
+    "id": "compose",
+    "title": "New message",
+    "subtitle": "Choose a contact or enter a number. Pick a specific number before typing.",
+    "rows": [
+      "Mara Bell · mobile +1 416 555 0142",
+      "Ellis Ward · choose from two numbers"
+    ],
+    "actions": [
+      [
+        "Choose Mara’s mobile",
+        "conversation"
+      ],
+      [
+        "Choose Ellis’s number",
+        "number-picker"
+      ],
+      [
+        "Use entered number",
+        "$compose"
+      ]
+    ]
+  },
+  {
+    "id": "number-picker",
+    "title": "Which number for Ellis?",
+    "subtitle": "A contact can have several numbers. Histories remain tied to each exact destination.",
+    "rows": [
+      "Work · +44 20 7946 0958",
+      "Mobile · +44 7700 900284"
+    ],
+    "actions": [
+      [
+        "Use work number",
+        "$ellis-work"
+      ],
+      [
+        "Use mobile number",
+        "$ellis-mobile"
+      ]
+    ]
+  },
+  {
+    "id": "send-unknown",
+    "title": "Send result unconfirmed",
+    "subtitle": "The phone may already have sent this message. Check the phone before creating another attempt.",
+    "rows": [
+      "Recipient · Mara Bell · +1 416 555 0142",
+      "Draft retained with its send ID",
+      "No automatic resend"
+    ],
+    "actions": [
+      [
+        "Check receipt",
+        "conversation"
+      ],
+      [
+        "I checked — restore draft",
+        "conversation"
+      ]
+    ]
+  },
+  {
+    "id": "unknown",
+    "title": "Unknown sender",
+    "subtitle": "+1 613 555 0178 · Primary SMS SIM",
+    "rows": [
+      "Incoming · Is tomorrow still good?",
+      "This number is not in your address book"
+    ],
+    "actions": [
+      [
+        "Add as a new contact",
+        "contact-add"
+      ],
+      [
+        "Link to existing contact",
+        "contact-link"
+      ]
+    ]
+  },
+  {
+    "id": "contacts",
+    "title": "Address book",
+    "subtitle": "Search names and every linked number, regardless of spacing or punctuation.",
+    "rows": [
+      "Mara Bell · Android + Google · 1 number",
+      "Ellis Ward · Google · 2 numbers",
+      "Received numbers · review unknown senders"
+    ],
+    "actions": [
+      [
+        "Contact details",
+        "contact-detail"
+      ],
+      [
+        "Add a number",
+        "contact-add"
+      ],
+      [
+        "Add all received numbers",
+        "bulk-review"
+      ],
+      [
+        "Import Android contacts",
+        "android-import"
+      ],
+      [
+        "Connect Google contacts",
+        "google-import"
+      ],
+      [
+        "Sync settings",
+        "sync-settings"
+      ]
+    ]
+  },
+  {
+    "id": "contact-detail",
+    "title": "Mara Bell",
+    "subtitle": "One identity · several linked source records",
+    "rows": [
+      "Mobile · +1 416 555 0142",
+      "Same number · (416) 555-0142",
+      "Android · writable Google-backed record",
+      "Google · linked resource; single write owner"
+    ],
+    "actions": [
+      [
+        "Text mobile",
+        "conversation"
+      ],
+      [
+        "Edit contact",
+        "contact-edit"
+      ],
+      [
+        "Review linked sources",
+        "sync-settings"
+      ]
+    ]
+  },
+  {
+    "id": "contact-edit",
+    "title": "Edit linked contact",
+    "subtitle": "Edit a name or number and review the destination before syncing.",
+    "rows": [
+      "Name · Mara Bell",
+      "Mobile · +1 416 555 0142",
+      "Google-backed Android record · one write owner"
+    ],
+    "actions": [
+      [
+        "Review sample changes",
+        "sync-review"
+      ],
+      [
+        "Cancel",
+        "contact-detail"
+      ]
+    ]
+  },
+  {
+    "id": "contact-add",
+    "title": "Add received number",
+    "subtitle": "Keep the original number and choose where the contact will be saved.",
+    "rows": [
+      "Number · +1 613 555 0178",
+      "Name · enter below",
+      "Save to · Voiceish, Android, Google, or both"
+    ],
+    "actions": [
+      [
+        "Save sample contact",
+        "$save-contact"
+      ],
+      [
+        "Link instead",
+        "contact-link"
+      ]
+    ]
+  },
+  {
+    "id": "contact-link",
+    "title": "Link an existing person",
+    "subtitle": "An exact normalized number can match automatically. Shared numbers or uncertain country codes need your choice.",
+    "rows": [
+      "Candidate · Ellis Ward",
+      "Do not merge by matching names alone",
+      "Link preserves all source records and histories"
+    ],
+    "actions": [
+      [
+        "Link to Ellis",
+        "$link-contact"
+      ],
+      [
+        "Create separately",
+        "contact-add"
+      ]
+    ]
+  },
+  {
+    "id": "bulk-review",
+    "title": "Add received numbers",
+    "subtitle": "Scan all available inbound history in pages, not just the newest 300 messages. Review before saving.",
+    "rows": [
+      "+1 613 555 0178 · new",
+      "(416) 555-0142 · already Mara; skip",
+      "72401 · short code; review",
+      "Sample preview; historical access still needs implementation"
+    ],
+    "actions": [
+      [
+        "Save selected sample numbers",
+        "$bulk"
+      ],
+      [
+        "Back to contacts",
+        "contacts"
+      ]
+    ]
+  },
+  {
+    "id": "android-import",
+    "title": "Import Android contacts",
+    "subtitle": "Read phone contacts only after permission. Choose an account and review matches before copying.",
+    "rows": [
+      "Device-only account · read/write",
+      "Google-backed account · linked",
+      "Read-only accounts · lookup only"
+    ],
+    "actions": [
+      [
+        "Preview Android import",
+        "import-review"
+      ],
+      [
+        "Simulate denied access",
+        "contacts-denied"
+      ]
+    ]
+  },
+  {
+    "id": "google-import",
+    "title": "Connect Google Contacts",
+    "subtitle": "Choose one account. Reading contacts and allowing changes are separate choices.",
+    "rows": [
+      "Account picker · simulated",
+      "Read access · import and lookup",
+      "Write access · optional two-way synchronization"
+    ],
+    "actions": [
+      [
+        "Preview Google import",
+        "import-review"
+      ],
+      [
+        "Simulate expired authorization",
+        "google-expired"
+      ]
+    ]
+  },
+  {
+    "id": "import-review",
+    "title": "Review imported contacts",
+    "subtitle": "Link existing numbers, preserve labels, and keep uncertain matches separate.",
+    "rows": [
+      "Mara · exact number match; link",
+      "Ellis · new source link; keep two numbers",
+      "Ambiguous local number · needs region"
+    ],
+    "actions": [
+      [
+        "Apply sample import",
+        "contacts"
+      ],
+      [
+        "Choose two-way sync",
+        "sync-settings"
+      ]
+    ]
+  },
+  {
+    "id": "sync-settings",
+    "title": "Contact synchronization",
+    "subtitle": "Choose read-only, import once, or two-way for each source. Changes are queued while offline.",
+    "rows": [
+      "Android device · two-way",
+      "Google Contacts · two-way",
+      "Google-backed Android contact · one write owner",
+      "Deletes require review; unlink is separate"
+    ],
+    "actions": [
+      [
+        "Save sample policy",
+        "sync-review"
+      ],
+      [
+        "Sync now",
+        "sync-review"
+      ],
+      [
+        "Review conflicts",
+        "sync-conflict"
+      ]
+    ]
+  },
+  {
+    "id": "sync-review",
+    "title": "Review outgoing changes",
+    "subtitle": "Show exactly which fields change and where they will be written.",
+    "rows": [
+      "Name · Mara → Mara Bell · Google",
+      "Mobile label · Android → Google",
+      "Pending edits · one write per source record"
+    ],
+    "actions": [
+      [
+        "Apply sample changes",
+        "contacts"
+      ],
+      [
+        "Simulate conflict",
+        "sync-conflict"
+      ]
+    ]
+  },
+  {
+    "id": "sync-conflict",
+    "title": "Resolve a contact conflict",
+    "subtitle": "Both sources changed the same name. Keep all numbers while choosing the preferred name.",
+    "rows": [
+      "Previously · Mara",
+      "Android · Mara Bell",
+      "Google · Mara B.",
+      "Different-field edits can merge automatically"
+    ],
+    "actions": [
+      [
+        "Keep Android name",
+        "$resolve-android"
+      ],
+      [
+        "Keep Google name",
+        "$resolve-google"
+      ],
+      [
+        "Decide later",
+        "contacts"
+      ]
+    ]
+  },
+  {
+    "id": "contacts-denied",
+    "title": "Contacts access denied",
+    "subtitle": "Texting still works using numbers. Grant contact access from Android settings when you want names.",
+    "rows": [
+      "Address-book permission is optional",
+      "Local Voiceish contacts remain available"
+    ],
+    "actions": [
+      [
+        "Retry sample import",
+        "android-import"
+      ],
+      [
+        "Back to address book",
+        "contacts"
+      ]
+    ]
+  },
+  {
+    "id": "google-expired",
+    "title": "Google connection needs attention",
+    "subtitle": "Keep local changes queued. Reconnect the same account before syncing again.",
+    "rows": [
+      "No queued edits discarded",
+      "No automatic account substitution"
+    ],
+    "actions": [
+      [
+        "Reconnect Google",
+        "google-import"
+      ],
+      [
+        "Work offline",
+        "contacts"
+      ]
+    ]
+  },
+  {
+    "id": "offline",
+    "title": "Phone unavailable",
+    "subtitle": "Your draft and chosen recipient stay visible. Start the phone bridge and check current local connectivity.",
+    "rows": [
+      "No send attempted",
+      "Last refresh is shown as stale",
+      "Queued contact edits wait for reconnection"
+    ],
+    "actions": [
+      [
+        "Retry sample connection",
+        "connection-check"
+      ],
+      [
+        "View draft",
+        "conversation"
+      ]
+    ]
+  }
+]
